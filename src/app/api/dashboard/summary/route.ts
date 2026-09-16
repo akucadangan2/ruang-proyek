@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     .map(([date, v]) => ({ date, ...v }));
 
   // Grid status — nominal + jumlah per status
-  const statusSummary = ALL_STATUSES.map((status) => {
+  const statusSummary: { status: OrderStatus | "all"; total_amount: number; count: number }[] = ALL_STATUSES.map((status) => {
     const filtered = orders.filter((o) => o.status === status);
     return {
       status,
