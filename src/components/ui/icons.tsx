@@ -291,3 +291,19 @@ export function IconShare({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconDollarSign({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.6-5 3.5S9.2 10 12 10s5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.6-5-3.5" />
+    </svg>
+  );
+}
+
+export function IconMessageCircle({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M21 11.5a8.5 8.5 0 01-8.5 8.5H4l1.5-4.3A8.5 8.5 0 1121 11.5z" />
+    </svg>
+  );
+}
