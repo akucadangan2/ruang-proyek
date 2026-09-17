@@ -14,6 +14,21 @@ export function formatDate(date: string | Date): string {
   }).format(new Date(date));
 }
 
+export function formatDateTime(date: string | Date): string {
+  const d = new Date(date);
+  const datePart = new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+  const timePart = new Intl.DateTimeFormat("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d);
+  return `${datePart}, ${timePart}`;
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
