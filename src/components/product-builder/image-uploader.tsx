@@ -31,18 +31,24 @@ export function ImageUploader({
     setUploading(true);
     const supabase = createClient();
     const uploaded: ProductImage[] = [];
+    let uploadError: string | null = null;
     for (const file of Array.from(files)) {
       const filePath = `${productId}/${Date.now()}-${file.name}`;
       const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-      if (!error) {
-        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(filePath);
-        uploaded.push({
-          id: crypto.randomUUID(),
-          product_id: productId,
-          url: urlData.publicUrl,
-          sort_order: images.length + uploaded.length,
-        });
+      if (error) {
+        uploadError = error.message;
+        continue;
       }
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(filePath);
+      uploaded.push({
+        id: crypto.randomUUID(),
+        product_id: productId,
+        url: urlData.publicUrl,
+        sort_order: images.length + uploaded.length,
+      });
+    }
+    if (uploadError) {
+      alert(`Gagal upload foto: ${uploadError}`);
     }
     onImagesChange([...images, ...uploaded]);
     setUploading(false);

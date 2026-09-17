@@ -58,6 +58,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       method: "PATCH",
       body: JSON.stringify(product),
     });
+    await fetch(`/api/products/${id}/sync`, {
+      method: "POST",
+      body: JSON.stringify({ images, bumps, formFields }),
+    });
     setSaving(false);
     router.push(`/products/${id}/checkout-builder`);
   }

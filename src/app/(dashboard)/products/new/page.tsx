@@ -55,7 +55,14 @@ export default function NewProductPage() {
     });
     if (res.ok) {
       const { data } = await res.json();
-      router.push(`/products/${data.id}`);
+      await fetch(`/api/products/${data.id}/sync`, {
+        method: "POST",
+        body: JSON.stringify({ images, bumps, formFields }),
+      });
+      router.push(`/products/${data.id}/checkout-builder`);
+    } else {
+      const err = await res.json();
+      alert(`Gagal simpan produk: ${err.error ?? "unknown error"}`);
     }
     setSaving(false);
   }
