@@ -8,8 +8,9 @@ import { OrderBumpForm } from "@/components/product-builder/order-bump-form";
 import { OrderFormBuilder } from "@/components/product-builder/order-form-builder";
 import { LpPreview } from "@/components/product-builder/lp-preview";
 import { SectionCard } from "@/components/ui/section-card";
-import { IconX } from "@/components/ui/icons";
+import { IconX, IconShare, IconCopy } from "@/components/ui/icons";
 import type { Product, ProductImage, OrderFormField, OrderBump } from "@/types/product";
+import Link from "next/link";
 
 const STEPS = [
   { n: 1, label: "Tambah Produk" },
@@ -27,6 +28,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -64,6 +66,21 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     });
     setSaving(false);
     router.push(`/products/${id}/checkout-builder`);
+  }
+
+  function shareProduct(slug: string, id: string) {
+    const url = `${window.location.origin}/${slug}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
+  }
+  
+  function duplicateProduct(id: string) {
+      // Implementasi duplikat
+  }
+
+  function toggleActive(product: Partial<Product>) {
+      // Implementasi toggle active
   }
 
   if (loadError) return <p className="p-6 text-[13px] text-negative">{loadError}</p>;
@@ -201,6 +218,32 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
         <div className="lg:sticky lg:top-4 h-fit">
           <LpPreview product={product} images={images} formFields={formFields} />
+          {product.slug && (
+              <div className="mt-4 p-4 border rounded-md">
+                 <p className="text-[13px] font-medium mb-2">Aksi Cepat</p>
+                  <div className="flex items-center gap-3 mt-1 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                          onClick={() => shareProduct(product.slug!, product.id!)}
+                          className="text-accent flex items-center gap-1"
+                      >
+                          <IconShare className="w-3.5 h-3.5" />
+                          {copiedId === product.id ? "Tersalin!" : "Bagikan"}
+                      </button>
+                      <Link href={`/products/${product.id}/checkout-builder`} className="text-accent">
+                          Checkout
+                      </Link>
+                      <Link href={`/orders?product_id=${product.id}`} className="text-accent">
+                          Orders
+                      </Link>
+                      <button onClick={() => toggleActive(product)} className="text-ink-soft">
+                          {product.is_active ? "Nonaktifkan" : "Aktifkan"}
+                      </button>
+                      <button onClick={() => duplicateProduct(product.id!)} className="text-ink-soft" title="Duplikat">
+                          <IconCopy className="w-3.5 h-3.5" />
+                      </button>
+                  </div>
+              </div>
+          )}
         </div>
       </div>
     </div>

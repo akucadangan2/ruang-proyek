@@ -280,3 +280,14 @@ export function IconCalendar({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconShare({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.6 10.5l6.8-3.9M8.6 13.5l6.8 3.9" />
+    </svg>
+  );
+}
