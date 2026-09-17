@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { RevenueCard } from "@/components/dashboard/revenue-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { OrderStatusGrid } from "@/components/dashboard/order-status-grid";
+import { IconCalendar, IconChevronDown } from "@/components/ui/icons";
 
 interface DashboardSummary {
   gross_revenue: number;
@@ -39,46 +40,50 @@ export default function DashboardPage() {
   }, [fetchSummary]);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-4">
-      <div>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tight">Dashboard</h1>
-        <p className="text-[12px] text-ink-soft mt-0.5">Ringkasan performa penjualan kamu.</p>
-      </div>
+    <div className="p-6 space-y-4">
+      <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Dashboard</h1>
 
       <div className="flex gap-3">
-        <input
-          type="date"
-          value={range.from}
-          onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
-          className="border border-line rounded-md px-3 py-2 text-[13px] bg-white"
-        />
-        <span className="self-center text-ink-soft text-[12px]">-</span>
-        <input
-          type="date"
-          value={range.to}
-          onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
-          className="border border-line rounded-md px-3 py-2 text-[13px] bg-white"
-        />
-        <select
-          value={dateField}
-          onChange={(e) => setDateField(e.target.value)}
-          className="border border-line rounded-md px-3 py-2 text-[13px] bg-white"
-        >
-          <option value="created_at">Waktu Dibuat</option>
-          <option value="updated_at">Waktu Diupdate</option>
-        </select>
+        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
+          <IconCalendar className="w-4 h-4 text-gray-400" />
+          <input
+            type="date"
+            value={range.from}
+            onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
+            className="text-[13px] outline-none"
+          />
+          <span className="text-gray-300">-</span>
+          <input
+            type="date"
+            value={range.to}
+            onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
+            className="text-[13px] outline-none"
+          />
+        </div>
+
+        <div className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 bg-white">
+          <select
+            value={dateField}
+            onChange={(e) => setDateField(e.target.value)}
+            className="text-[13px] outline-none appearance-none bg-transparent pr-1"
+          >
+            <option value="created_at">Waktu Dibuat</option>
+            <option value="updated_at">Waktu Diupdate</option>
+          </select>
+          <IconChevronDown className="w-3.5 h-3.5 text-gray-400" />
+        </div>
       </div>
 
       {loading || !summary ? (
-        <p className="text-[13px] text-ink-soft py-8 text-center">Memuat...</p>
+        <p className="text-[13px] text-gray-400 py-8 text-center">Memuat...</p>
       ) : (
-        <>
+        <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-5">
           <div className="grid grid-cols-[200px_1fr] gap-4">
             <RevenueCard grossRevenue={summary.gross_revenue} count={summary.count} />
             <TrendChart data={summary.daily_trend} />
           </div>
           <OrderStatusGrid data={summary.status_summary as any} />
-        </>
+        </div>
       )}
     </div>
   );

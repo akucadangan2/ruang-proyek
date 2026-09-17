@@ -8,13 +8,13 @@ interface RevenueCardProps {
 export function RevenueCard({ grossRevenue, count }: RevenueCardProps) {
   return (
     <div className="grid grid-cols-1 gap-3">
-      <div className="bg-ink text-white rounded-lg p-4">
-        <p className="text-[12px] text-white/50">Est. Gross Revenue</p>
-        <p className="text-[22px] font-bold mt-1 tabular-nums">{formatRupiah(grossRevenue)}</p>
+      <div className="bg-sky-500 text-white rounded-lg p-4">
+        <p className="text-[12px] opacity-90">Est. Gross Revenue</p>
+        <p className="text-[20px] font-bold mt-1 tabular-nums">{formatRupiah(grossRevenue)}</p>
       </div>
-      <div className="bg-white border border-line rounded-lg p-4">
-        <p className="text-[12px] text-ink-soft">Count</p>
-        <p className="text-[22px] font-bold mt-1 text-ink tabular-nums">{count}</p>
+      <div className="bg-orange-500 text-white rounded-lg p-4">
+        <p className="text-[12px] opacity-90">Count</p>
+        <p className="text-[20px] font-bold mt-1 tabular-nums">{count}</p>
       </div>
     </div>
   );
