@@ -1,16 +1,44 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
-import { IconPackage } from "@/components/ui/icons";
+import { IconPackage, IconArrowUpDown, IconCopy, IconTrash } from "@/components/ui/icons";
 import type { Product } from "@/types/product";
 
+interface ProductStats {
+  pesanan: number;
+  sudah_dibayar: number;
+  rasio_bayar: number;
+  jumlah_terjual: number;
+  pendapatan_bersih: number;
+}
+
+interface ProductRow extends Product {
+  product_images?: { url: string; sort_order: number }[];
+  stats: ProductStats;
+}
+
+type SortKey = "name" | "normal_price" | "pesanan" | "sudah_dibayar" | "rasio_bayar" | "jumlah_terjual" | "pendapatan_bersih";
+
+const COLUMNS: { key: SortKey; label: string; align?: "right" }[] = [
+  { key: "name", label: "Nama Produk" },
+  { key: "normal_price", label: "Harga", align: "right" },
+  { key: "pesanan", label: "Pesanan", align: "right" },
+  { key: "sudah_dibayar", label: "Sudah Dibayar", align: "right" },
+  { key: "rasio_bayar", label: "Rasio Bayar", align: "right" },
+  { key: "jumlah_terjual", label: "Jumlah Terjual", align: "right" },
+  { key: "pendapatan_bersih", label: "Pendapatan Bersih", align: "right" },
+];
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -29,7 +57,57 @@ export default function ProductsPage() {
     return () => clearTimeout(timeout);
   }, [fetchProducts]);
 
-  async function toggleActive(product: Product) {
+  function handleSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  const sortedProducts = useMemo(() => {
+    const copy = [...products];
+    copy.sort((a, b) => {
+      let valA: string | number;
+      let valB: string | number;
+
+      if (sortKey === "name") {
+        valA = a.name.toLowerCase();
+        valB = b.name.toLowerCase();
+      } else if (sortKey === "normal_price") {
+        valA = a.discount_price ?? a.normal_price;
+        valB = b.discount_price ?? b.normal_price;
+      } else {
+        valA = a.stats[sortKey];
+        valB = b.stats[sortKey];
+      }
+
+      if (valA < valB) return sortDir === "asc" ? -1 : 1;
+      if (valA > valB) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return copy;
+  }, [products, sortKey, sortDir]);
+
+  function toggleSelectAll() {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(products.map((p) => p.id)));
+    }
+  }
+
+  function toggleSelectOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function toggleActive(product: ProductRow) {
     await fetch(`/api/products/${product.id}`, {
       method: "PATCH",
       body: JSON.stringify({ is_active: !product.is_active }),
@@ -43,10 +121,10 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[18px] font-semibold text-ink tracking-tight">Katalog Produk</h1>
+          <h1 className="text-[18px] font-semibold text-ink tracking-tight">Tampilan List Produk</h1>
           <p className="text-[12px] text-ink-soft mt-0.5">Kelola semua produk yang kamu jual.</p>
         </div>
         <Link
@@ -87,48 +165,91 @@ export default function ProductsPage() {
           </div>
         </div>
       ) : (
-        <div className="border border-line rounded-lg divide-y divide-line bg-white">
-          {products.map((product) => (
-            <div key={product.id} className="flex items-center gap-4 p-4">
-              <img
-                src={(product as any).product_images?.[0]?.url ?? ""}
-                alt={product.name}
-                className="w-14 h-14 object-cover rounded-md border border-line bg-paper shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-[13px] text-ink truncate">{product.name}</p>
-                <p className="text-[12px] text-ink-soft tabular-nums mt-0.5">
-                  {formatRupiah(product.discount_price ?? product.normal_price)}
-                </p>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/${(product as any).slug}`);
-                  }}
-                  className="text-[11px] text-accent mt-0.5"
-                >
-                  /{(product as any).slug} · Copy Link
-                </button>
-              </div>
-              <span
-                className={`text-[11px] px-2.5 py-1 rounded-full font-medium shrink-0 ${
-                  product.is_active ? "bg-positive-soft text-positive" : "bg-paper text-ink-soft border border-line"
-                }`}
-              >
-                {product.is_active ? "Aktif" : "Nonaktif"}
-              </span>
-              <div className="flex gap-4 text-[12px] shrink-0">
-                <Link href={`/products/${product.id}`} className="text-ink hover:text-accent font-medium">
-                  Edit
-                </Link>
-                <button onClick={() => toggleActive(product)} className="text-ink-soft hover:text-ink">
-                  {product.is_active ? "Nonaktifkan" : "Aktifkan"}
-                </button>
-                <button onClick={() => duplicateProduct(product.id)} className="text-ink-soft hover:text-ink">
-                  Duplikat
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="border border-line rounded-lg overflow-x-auto bg-white">
+          <table className="w-full text-[13px] min-w-[900px]">
+            <thead>
+              <tr className="text-left text-ink-soft bg-paper border-b border-line text-[12px]">
+                <th className="py-2.5 px-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={products.length > 0 && selectedIds.size === products.length}
+                    onChange={toggleSelectAll}
+                    className="accent-ink"
+                  />
+                </th>
+                {COLUMNS.map((col) => (
+                  <th key={col.key} className={`font-medium ${col.align === "right" ? "text-right pr-4" : ""}`}>
+                    <button
+                      onClick={() => handleSort(col.key)}
+                      className={`flex items-center gap-1 hover:text-ink ${
+                        col.align === "right" ? "ml-auto" : ""
+                      } ${sortKey === col.key ? "text-ink font-semibold" : ""}`}
+                    >
+                      {col.label}
+                      <IconArrowUpDown className="w-3 h-3" />
+                    </button>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {sortedProducts.map((product) => {
+                const image = product.product_images?.sort((a, b) => a.sort_order - b.sort_order)[0];
+                return (
+                  <tr key={product.id} className="group">
+                    <td className="py-3 px-4 align-top">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(product.id)}
+                        onChange={() => toggleSelectOne(product.id)}
+                        className="accent-ink"
+                      />
+                    </td>
+                    <td className="align-top py-3 pr-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={image?.url ?? ""}
+                          alt={product.name}
+                          className="w-10 h-10 object-cover rounded border border-line bg-paper shrink-0"
+                        />
+                        <div>
+                          <Link href={`/products/${product.id}`} className="font-medium text-ink hover:text-accent">
+                            {product.name}
+                          </Link>
+                          <div className="flex items-center gap-3 mt-1 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Link href={`/products/${product.id}/checkout-builder`} className="text-accent">
+                              Checkout
+                            </Link>
+                            <Link href={`/orders?product_id=${product.id}`} className="text-accent">
+                              Orders
+                            </Link>
+                            <button onClick={() => toggleActive(product)} className="text-ink-soft">
+                              {product.is_active ? "Nonaktifkan" : "Aktifkan"}
+                            </button>
+                            <button onClick={() => duplicateProduct(product.id)} className="text-ink-soft" title="Duplikat">
+                              <IconCopy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">
+                      {formatRupiah(product.discount_price ?? product.normal_price)}
+                    </td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">{product.stats.pesanan}</td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">{product.stats.sudah_dibayar}</td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">
+                      {product.stats.rasio_bayar.toFixed(2)} %
+                    </td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">{product.stats.jumlah_terjual}</td>
+                    <td className="align-top py-3 pr-4 text-right tabular-nums text-ink">
+                      {formatRupiah(product.stats.pendapatan_bersih)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
     query = query.eq("products.owner_id", user.id);
   }
 
+  const productId = searchParams.get("product_id");
+  if (productId) query = query.eq("product_id", productId);
+
   if (status) query = query.eq("status", status);
   if (search) {
     query = query.or(

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { formatRupiah, formatDateTime } from "@/lib/utils";
 import { IconReceipt, IconExternalLink } from "@/components/ui/icons";
 import type { Order, OrderStatus } from "@/types/order";
+import { useSearchParams } from "next/navigation";
+
 
 const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
   { key: "all", label: "Semua" },
@@ -41,6 +43,8 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function OrdersPage() {
+  const searchParams = useSearchParams();
+  const productIdFilter = searchParams.get("product_id");
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -52,6 +56,7 @@ export default function OrdersPage() {
     const params = new URLSearchParams();
     if (status !== "all") params.set("status", status);
     if (search) params.set("search", search);
+    if (productIdFilter) params.set("product_id", productIdFilter);
 
     const res = await fetch(`/api/orders?${params.toString()}`);
     const { data } = await res.json();
