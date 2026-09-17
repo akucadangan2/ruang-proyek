@@ -358,600 +358,360 @@ export default function CheckoutPage({
       product.normal_price;
 
   return (
-    <main className="min-h-screen bg-[#F3F7FC] px-2 py-2 sm:px-4 sm:py-4">
-      {/* =====================================================
-          CHECKOUT CONTAINER
-      ====================================================== */}
+    <main className="min-h-screen bg-white sm:bg-[#F4F7F5] sm:px-4 sm:py-6">
+      <div className="checkout-enter mx-auto w-full bg-white sm:max-w-[600px] sm:overflow-hidden sm:rounded-[24px] sm:border sm:border-[#E2E8E5] sm:shadow-[0_18px_60px_rgba(23,62,55,0.08)]">
 
-      <div className="checkout-enter mx-auto w-full max-w-[570px] overflow-hidden rounded-[17px] border border-[#C9D9EA] bg-white shadow-[0_2px_8px_rgba(42,80,120,0.04)]">
-        <div className="px-3 pb-5 pt-3 sm:px-4 sm:pb-6">
-          {/* =================================================
-              TRUST
-          ================================================== */}
-
-          <div className="mb-4 grid grid-cols-2 gap-2 px-2 sm:px-12">
-            <TrustItem
-              icon={<MoneyShieldIcon />}
-              title="Garansi Uang"
-              subtitle="Kembali"
-            />
-
-            <TrustItem
-              icon={<ThumbIcon />}
-              title="Jaminan"
-              subtitle="Kepuasan"
-            />
+        {/* TRUST BAR */}
+        <div className="border-b border-[#EDF1EF] bg-[#FAFBFA] px-4 py-3 sm:px-6">
+          <div className="grid grid-cols-2 divide-x divide-[#E3E9E6]">
+            <TrustItem icon={<MoneyShieldIcon />} title="Pembayaran" subtitle="Aman" />
+            <TrustItem icon={<ThumbIcon />} title="Produk Digital" subtitle="Terkirim Otomatis" />
           </div>
+        </div>
 
-          {/* =================================================
-              PRODUCT IMAGE
-          ================================================== */}
-
-          {mainImage && (
-            <div className="mb-5 overflow-hidden rounded-[3px] border border-[#B9CADC] bg-[#F7FAFD]">
+        {/* PRODUCT */}
+        <section className="px-4 pb-5 pt-4 sm:px-6 sm:pt-6">
+          {mainImage ? (
+            <div className="overflow-hidden rounded-2xl border border-[#E4EAE7] bg-[#F6F8F7]">
               <img
                 src={mainImage.url}
                 alt={product.name}
-                className="h-auto w-full object-cover"
+                className="aspect-[4/3] h-auto w-full object-cover sm:aspect-video"
               />
             </div>
-          )}
-
-          {/* =================================================
-              PRODUCT NAME OPTIONAL
-          ================================================== */}
-
-          {!mainImage && (
-            <div className="mb-5 rounded-lg border border-[#D6E2EE] bg-[#F7FAFD] p-5">
-              <h1 className="text-[16px] font-bold text-[#172E4D]">
-                {product.name}
-              </h1>
-
-              {product.description && (
-                <p className="mt-1 text-[12px] leading-5 text-[#718399]">
-                  {product.description}
-                </p>
-              )}
+          ) : (
+            <div className="flex aspect-video items-center justify-center rounded-2xl border border-[#E4EAE7] bg-[#F6F8F7] text-[#6D7D77]">
+              <PackageIcon />
             </div>
           )}
 
-          {/* =================================================
-              DATA PENERIMA
-          ================================================== */}
+          <div className="pt-4">
+            <h1 className="text-[18px] font-bold leading-[1.35] tracking-[-0.02em] text-[#173E37] sm:text-[20px]">
+              {product.name}
+            </h1>
 
-          <CheckoutSectionTitle>
-            Data Penerima:
-          </CheckoutSectionTitle>
+            {product.description && (
+              <p className="mt-2 text-[12px] leading-5 text-[#74827D] sm:text-[13px]">
+                {product.description}
+              </p>
+            )}
 
-          <div className="mt-4 space-y-3">
-            {enabledFields.map(
-              (field) => (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-[20px] font-bold tracking-[-0.03em] text-[#173E37]">
+                {formatRupiah(basePrice)}
+              </span>
+
+              {hasDiscount && (
+                <>
+                  <span className="text-[12px] text-[#9AA5A1] line-through">
+                    {formatRupiah(product.normal_price)}
+                  </span>
+                  <span className="rounded-full bg-[#EAF5EF] px-2.5 py-1 text-[10px] font-semibold text-[#2E7557]">
+                    Harga Promo
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* BUYER DATA */}
+        <section className="border-t border-[#EDF1EF] px-4 py-5 sm:px-6 sm:py-6">
+          <CheckoutSectionTitle>Data Penerima</CheckoutSectionTitle>
+
+          <p className="mt-2 text-[11px] leading-4 text-[#8A9692]">
+            Data ini digunakan untuk memproses dan mengirimkan pesanan.
+          </p>
+
+          <div className="mt-4 space-y-3.5">
+            {enabledFields.map((field) => (
+              <div key={field.id}>
+                <label className="mb-1.5 block text-[11px] font-semibold text-[#455B53]">
+                  {field.label}
+                  {field.required && <span className="ml-1 text-red-500">*</span>}
+                </label>
+
                 <input
-                  key={field.id}
                   type={
                     field.key === "email"
                       ? "email"
-                      : field.key ===
-                          "no_hp"
+                      : field.key === "no_hp"
                         ? "tel"
                         : "text"
                   }
-                  placeholder={`${field.label}${
-                    field.required
-                      ? " *"
-                      : ""
-                  }`}
-                  value={
-                    formValues[
-                      field.key
-                    ] ?? ""
+                  placeholder={
+                    field.key === "email"
+                      ? "contoh@email.com"
+                      : field.key === "no_hp"
+                        ? "08xxxxxxxxxx"
+                        : `Masukkan ${field.label.toLowerCase()}`
                   }
+                  value={formValues[field.key] ?? ""}
                   onChange={(e) =>
-                    setFormValues(
-                      (prev) => ({
-                        ...prev,
-                        [field.key]:
-                          e.target
-                            .value,
-                      })
-                    )
+                    setFormValues((prev) => ({
+                      ...prev,
+                      [field.key]: e.target.value,
+                    }))
                   }
-                  required={
-                    field.required
-                  }
-                  className="
-                    h-[44px]
-                    w-full
-                    rounded-[3px]
-                    border
-                    border-[#C8D9EB]
-                    bg-white
-                    px-3
-                    text-[12px]
-                    text-[#243A55]
-                    shadow-[0_0_0_1px_rgba(209,224,239,.25)]
-                    outline-none
-                    transition-all
-                    placeholder:text-[#8A9AAF]
-                    hover:border-[#ABC5E0]
-                    focus:border-[#568DD1]
-                    focus:ring-2
-                    focus:ring-[#568DD1]/10
-                  "
+                  required={field.required}
+                  className="h-[50px] w-full rounded-xl border border-[#DCE4E0] bg-white px-3.5 text-[14px] text-[#263C35] outline-none transition-all placeholder:text-[#A2ACA8] focus:border-[#4D7B6B] focus:ring-4 focus:ring-[#4D7B6B]/10"
                 />
-              )
-            )}
+              </div>
+            ))}
           </div>
+        </section>
 
-          {/* =================================================
-              ORDER BUMP
-          ================================================== */}
-
-          {product.order_bumps?.length >
-            0 && (
-            <div className="mt-5 space-y-3">
-              {product.order_bumps.map(
-                (bump) => {
-                  const bp =
-                    bump.bump_product;
-
-                  const image = [
-                    ...(bp.product_images ??
-                      []),
-                  ].sort(
-                    (a, b) =>
-                      a.sort_order -
-                      b.sort_order
-                  )[0];
-
-                  const selected =
-                    selectedBumps.includes(
-                      bump.id
-                    );
-
-                  return (
-                    <div
-                      key={bump.id}
-                      className="
-                        overflow-hidden
-                        rounded-[4px]
-                        border
-                        border-dashed
-                        border-[#F2A43B]
-                        bg-[#FFF9EB]
-                        p-3
-                      "
-                    >
-                      <div className="flex items-start gap-3">
-                        {image ? (
-                          <img
-                            src={
-                              image.url
-                            }
-                            alt={
-                              bp.name
-                            }
-                            className="h-[66px] w-[66px] shrink-0 rounded-[3px] border border-[#E8C06F] object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-[3px] border border-[#E8C06F] bg-[#FFF2C9] text-[#B6822B]">
-                            <PackageIcon />
-                          </div>
-                        )}
-
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-[11.5px] font-semibold leading-[17px] text-[#233A55]">
-                            {bp.name}
-                          </h3>
-
-                          <p className="mt-0.5 text-[11px] font-medium text-[#BA761C]">
-                            {formatRupiah(
-                              bp.discount_price ??
-                                bp.normal_price
-                            )}
-                          </p>
-
-                          {bp.description && (
-                            <p className="mt-1 line-clamp-4 text-[10px] leading-[15px] text-[#667B91]">
-                              {
-                                bp.description
-                              }
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <label
-                        className={`
-                          mt-3
-                          flex
-                          cursor-pointer
-                          items-center
-                          gap-2
-                          rounded-[3px]
-                          border
-                          px-2.5
-                          py-2
-                          transition-all
-
-                          ${
-                            selected
-                              ? "border-[#E9A72F] bg-[#FFF4CC]"
-                              : "border-[#EAB34B] bg-[#FFF8E5] hover:bg-[#FFF2C9]"
-                          }
-                        `}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={
-                            selected
-                          }
-                          onChange={(
-                            e
-                          ) =>
-                            setSelectedBumps(
-                              (
-                                prev
-                              ) =>
-                                e
-                                  .target
-                                  .checked
-                                  ? [
-                                      ...prev,
-                                      bump.id,
-                                    ]
-                                  : prev.filter(
-                                      (
-                                        id
-                                      ) =>
-                                        id !==
-                                        bump.id
-                                    )
-                            )
-                          }
-                          className="h-4 w-4 accent-[#D99118]"
-                        />
-
-                        <span className="text-[10.5px] font-medium text-[#53677A]">
-                          Tambahkan Paket{" "}
-                          {bp.name}
-                        </span>
-                      </label>
-                    </div>
-                  );
-                }
-              )}
+        {/* ORDER BUMP */}
+        {product.order_bumps?.length > 0 && (
+          <section className="border-t border-[#EDF1EF] px-4 py-5 sm:px-6 sm:py-6">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <CheckoutSectionTitle>Penawaran Tambahan</CheckoutSectionTitle>
+              <span className="shrink-0 rounded-full bg-[#FFF4DC] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#A86F1F]">
+                Opsional
+              </span>
             </div>
-          )}
 
-          {/* =================================================
-              PAYMENT
-          ================================================== */}
+            <div className="space-y-3">
+              {product.order_bumps.map((bump) => {
+                const bp = bump.bump_product;
+                const image = [...(bp.product_images ?? [])].sort(
+                  (a, b) => a.sort_order - b.sort_order
+                )[0];
+                const selected = selectedBumps.includes(bump.id);
 
-          <div className="mt-6">
-            <CheckoutSectionTitle>
-              Metode Pembayaran:
-            </CheckoutSectionTitle>
+                return (
+                  <label
+                    key={bump.id}
+                    className={`block cursor-pointer overflow-hidden rounded-2xl border transition-all ${
+                      selected
+                        ? "border-[#D8A04A] bg-[#FFFCF5] shadow-[0_0_0_3px_rgba(216,160,74,0.08)]"
+                        : "border-[#E4E8E5] bg-white"
+                    }`}
+                  >
+                    <div className="flex gap-3 p-3">
+                      {image ? (
+                        <img
+                          src={image.url}
+                          alt={bp.name}
+                          className="h-[72px] w-[72px] shrink-0 rounded-xl border border-[#ECEDE9] object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-xl bg-[#FFF5DF] text-[#B27A27]">
+                          <PackageIcon />
+                        </div>
+                      )}
 
-            <div className="mt-4 space-y-2.5">
-              {paymentMethodsConfig.bank_transfer_enabled && (
-                <PaymentOption
-                  selected={
-                    paymentMethod ===
-                    "bank_transfer"
-                  }
-                  onSelect={() =>
-                    setPaymentMethod(
-                      "bank_transfer"
-                    )
-                  }
-                  logo={
-                    <BankIcon />
-                  }
-                  title="Bank Transfer"
-                  subtitle="Transfer bank manual"
-                  showGateway={false}
-                />
-              )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12px] font-semibold leading-[17px] text-[#30473F]">
+                          {bp.name}
+                        </p>
+                        <p className="mt-1 text-[13px] font-bold text-[#B77820]">
+                          {formatRupiah(bp.discount_price ?? bp.normal_price)}
+                        </p>
+                        {bp.description && (
+                          <p className="mt-1 line-clamp-2 text-[10px] leading-[15px] text-[#7C8985]">
+                            {bp.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
-              {paymentMethodsConfig.e_payment_enabled &&
-                enabledChannels.map(
-                  (channel) => {
-                    const cfg =
-                      FEE_CONFIG[
-                        channel
-                      ];
-
-                    return (
-                      <PaymentOption
-                        key={
-                          channel
-                        }
-                        selected={
-                          paymentMethod ===
-                          channel
-                        }
-                        onSelect={() =>
-                          setPaymentMethod(
-                            channel
+                    <div className={`flex min-h-[44px] items-center gap-2.5 border-t px-3 ${
+                      selected
+                        ? "border-[#ECD8B2] bg-[#FFF6E2]"
+                        : "border-[#ECEFEB] bg-[#FAFBFA]"
+                    }`}>
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={(e) =>
+                          setSelectedBumps((prev) =>
+                            e.target.checked
+                              ? [...prev, bump.id]
+                              : prev.filter((id) => id !== bump.id)
                           )
                         }
-                        logo={
-                          <PaymentLogo
-                            channel={
-                              channel
-                            }
-                            label={
-                              cfg.badge
-                            }
-                            className={
-                              cfg.badgeColor
-                            }
-                          />
-                        }
-                        title={
-                          CHANNEL_LABELS[
-                            channel
-                          ]
-                        }
-                        subtitle={
-                          cfg.feeLabel
-                        }
-                        showGateway
+                        className="h-4 w-4 accent-[#C88A2E]"
                       />
-                    );
-                  }
-                )}
+                      <span className="text-[11px] font-semibold text-[#53665F]">
+                        Tambahkan ke pesanan
+                      </span>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
+          </section>
+        )}
+
+        {/* PAYMENT */}
+        <section className="border-t border-[#EDF1EF] px-4 py-5 sm:px-6 sm:py-6">
+          <CheckoutSectionTitle>Metode Pembayaran</CheckoutSectionTitle>
+          <p className="mt-2 text-[11px] leading-4 text-[#8A9692]">
+            Pilih metode pembayaran yang paling nyaman.
+          </p>
+
+          <div className="mt-4 space-y-2.5">
+            {paymentMethodsConfig.bank_transfer_enabled && (
+              <PaymentOption
+                selected={paymentMethod === "bank_transfer"}
+                onSelect={() => setPaymentMethod("bank_transfer")}
+                logo={<BankIcon />}
+                title="Transfer Bank"
+                subtitle="Transfer bank manual"
+                showGateway={false}
+              />
+            )}
+
+            {paymentMethodsConfig.e_payment_enabled &&
+              enabledChannels.map((channel) => {
+                const cfg = FEE_CONFIG[channel];
+
+                return (
+                  <PaymentOption
+                    key={channel}
+                    selected={paymentMethod === channel}
+                    onSelect={() => setPaymentMethod(channel)}
+                    logo={
+                      <PaymentLogo
+                        channel={channel}
+                        label={cfg.badge}
+                        className={cfg.badgeColor}
+                      />
+                    }
+                    title={CHANNEL_LABELS[channel]}
+                    subtitle={cfg.feeLabel}
+                    showGateway
+                  />
+                );
+              })}
           </div>
 
-          {/* =================================================
-              EMAIL NOTICE
-          ================================================== */}
-
-          <div className="mt-5 rounded-[3px] bg-[#F7FAFE] px-3 py-3">
-            <p className="text-[10px] font-semibold leading-[16px] text-[#20364F]">
-              *Pastikan Email dengan benar.
-              Produk akan terkirim secara
-              otomatis melalui Email setelah
-              pembayaran.
+          <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-[#F4F8F6] p-3">
+            <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#52766A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 11v5" />
+              <path d="M12 8h.01" />
+            </svg>
+            <p className="text-[10.5px] leading-[16px] text-[#667770]">
+              Pastikan email sudah benar. Produk digital akan dikirim otomatis setelah pembayaran berhasil dikonfirmasi.
             </p>
           </div>
+        </section>
 
-          {/* =================================================
-              ORDER SUMMARY
-          ================================================== */}
+        {/* SUMMARY */}
+        <section className="border-t border-[#EDF1EF] px-4 py-5 sm:px-6 sm:py-6">
+          <CheckoutSectionTitle>Rincian Pesanan</CheckoutSectionTitle>
 
-          <div className="mt-5 rounded-[4px] border border-[#C9D9EA] bg-[#FBFDFF] p-3">
-            <CheckoutSectionTitle>
-              Rincian Pesanan
-            </CheckoutSectionTitle>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[#E0E7E3] bg-white">
+            <div className="space-y-3.5 p-4">
+              <SummaryRow label={`1x ${product.name}`} value={formatRupiah(basePrice)} />
 
-            <div className="mt-3">
-              {/* PRODUCT */}
-              <div className="flex items-start justify-between gap-4 border-b border-[#DCE6F0] pb-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] leading-4 text-[#4E6680]">
-                    (1x) {product.name}
-                  </p>
-                </div>
-
-                <div className="shrink-0 text-right">
-                  <p className="text-[10px] font-medium text-[#253C55]">
-                    {formatRupiah(
-                      basePrice
-                    )}
-                  </p>
-
-                  {hasDiscount && (
-                    <p className="mt-0.5 text-[9px] text-[#E65050] line-through">
-                      {formatRupiah(
-                        product.normal_price
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* BUMPS */}
               {product.order_bumps
-                ?.filter((b) =>
-                  selectedBumps.includes(
-                    b.id
-                  )
-                )
+                ?.filter((b) => selectedBumps.includes(b.id))
                 .map((b) => (
-                  <div
+                  <SummaryRow
                     key={b.id}
-                    className="flex items-start justify-between gap-4 border-b border-[#DCE6F0] py-3"
-                  >
-                    <span className="text-[10px] leading-4 text-[#4E6680]">
-                      (1x){" "}
-                      {
-                        b
-                          .bump_product
-                          .name
-                      }
-                    </span>
-
-                    <span className="shrink-0 text-[10px] font-medium text-[#253C55]">
-                      {formatRupiah(
-                        b
-                          .bump_product
-                          .discount_price ??
-                          b
-                            .bump_product
-                            .normal_price
-                      )}
-                    </span>
-                  </div>
+                    label={`1x ${b.bump_product.name}`}
+                    value={formatRupiah(
+                      b.bump_product.discount_price ?? b.bump_product.normal_price
+                    )}
+                  />
                 ))}
 
-              {/* ADMIN FEE */}
-              {adminFee > 0 &&
-                selectedFeeConfig && (
-                  <div className="flex items-start justify-between gap-4 border-b border-[#DCE6F0] py-3">
-                    <div>
-                      <p className="text-[10px] text-[#4E6680]">
-                        {
-                          CHANNEL_LABELS[
-                            paymentMethod as EPaymentChannel
-                          ]
-                        }
-                      </p>
-
-                      <p className="mt-0.5 text-[9px] text-[#8293A5]">
-                        {
-                          selectedFeeConfig.feeLabel
-                        }
-                      </p>
-                    </div>
-
-                    <span className="text-[10px] font-medium text-[#253C55]">
-                      {formatRupiah(
-                        adminFee
-                      )}
-                    </span>
-                  </div>
-                )}
-
-              {/* PPN */}
-              {ppn > 0 && (
-                <div className="flex items-center justify-between border-b border-[#DCE6F0] py-3">
-                  <span className="text-[10px] text-[#4E6680]">
-                    PPN
-                  </span>
-
-                  <span className="text-[10px] font-medium text-[#253C55]">
-                    {formatRupiah(
-                      ppn
-                    )}
-                  </span>
-                </div>
+              {adminFee > 0 && selectedFeeConfig && (
+                <SummaryRow
+                  label="Biaya pembayaran"
+                  sublabel={CHANNEL_LABELS[paymentMethod as EPaymentChannel]}
+                  value={formatRupiah(adminFee)}
+                />
               )}
 
-              {/* TOTAL */}
-              <div className="flex items-center justify-between pt-3">
-                <span className="text-[12px] font-bold text-[#009B42]">
-                  Total
-                </span>
+              {ppn > 0 && <SummaryRow label="PPN" value={formatRupiah(ppn)} />}
+            </div>
 
-                <span className="text-[13px] font-bold text-[#009B42]">
-                  {formatRupiah(
-                    total
-                  )}
-                </span>
+            <div className="flex items-end justify-between gap-4 border-t border-[#E0E7E3] bg-[#F6F9F7] px-4 py-4">
+              <div>
+                <p className="text-[11px] font-medium text-[#667770]">Total Pembayaran</p>
+                <p className="mt-0.5 text-[9px] text-[#8B9793]">Termasuk biaya yang berlaku</p>
               </div>
+              <span className="shrink-0 text-[19px] font-bold tracking-[-0.03em] text-[#173E37]">
+                {formatRupiah(total)}
+              </span>
             </div>
           </div>
+        </section>
 
-          {/* =================================================
-              BUY BUTTON
-          ================================================== */}
-
+        {/* CTA */}
+        <div className="border-t border-[#EDF1EF] bg-white px-4 pb-5 pt-4 sm:px-6 sm:pb-6">
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={
-              submitting ||
-              !paymentMethod ||
-              enabledFields.length === 0
-            }
-            className="
-              mt-5
-              flex
-              h-[54px]
-              w-full
-              items-center
-              justify-center
-              rounded-[3px]
-              bg-[#00B719]
-              px-5
-              text-[16px]
-              font-bold
-              text-white
-              shadow-[0_3px_7px_rgba(0,183,25,.18)]
-              transition-all
-              hover:bg-[#00A817]
-              active:translate-y-[1px]
-              disabled:cursor-not-allowed
-              disabled:opacity-50
-            "
+            disabled={submitting || !paymentMethod || enabledFields.length === 0}
+            className="flex h-[56px] w-full items-center justify-center gap-2 rounded-2xl bg-[#173E37] px-5 text-[14px] font-bold text-white shadow-[0_8px_22px_rgba(23,62,55,0.18)] transition-all hover:bg-[#12342D] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? (
-              <span className="flex items-center gap-2">
+              <>
                 <Spinner />
-                Memproses...
-              </span>
+                Memproses pembayaran...
+              </>
             ) : (
-              "Beli Sekarang"
+              "Bayar Sekarang"
             )}
           </button>
 
-          {/* =================================================
-              DIGITAL PRODUCT
-          ================================================== */}
-
-          {data.checkoutConfig?.footer
-            .digital_product_label !==
-            false && (
-            <div className="mt-5 flex items-center gap-3 rounded-[3px] bg-[#EAFBF1] px-3 py-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold text-[#00A547]">
-                  Produk Digital
-                </p>
-
-                <p className="mt-0.5 max-w-[270px] text-[9.5px] leading-[15px] text-[#148D4B]">
-                  Produk akan dikirimkan ke
-                  kamu langsung setelah proses
-                  pembelian
-                </p>
-              </div>
-
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#B8E8C8] bg-[#F7FFF9] text-[#19A653]">
-                <DigitalProductIcon />
-              </div>
-            </div>
-          )}
-
-          {/* =================================================
-              FOOTER
-          ================================================== */}
-
-          <div className="pb-1 pt-7 text-center">
-            <p className="text-[8.5px] text-[#71869C]">
-              Copyright ©{" "}
-              {new Date().getFullYear()}
-            </p>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[9.5px] text-[#87938F]">
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="5" y="10" width="14" height="10" rx="2" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+            </svg>
+            <span>Pembayaran aman diproses melalui</span>
+            <span className="font-extrabold tracking-wide text-[#E66C2B]">DOKU</span>
           </div>
         </div>
-      </div>
 
-      {/* =====================================================
-          STYLE
-      ====================================================== */}
+        {/* DIGITAL PRODUCT */}
+        {data.checkoutConfig?.footer.digital_product_label !== false && (
+          <div className="mx-4 mb-5 flex items-center gap-3 rounded-2xl border border-[#DDEFE5] bg-[#F1FBF5] p-3.5 sm:mx-6 sm:mb-6">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#3D8565] shadow-sm">
+              <DigitalProductIcon />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-[#286A4C]">Produk Digital</p>
+              <p className="mt-0.5 text-[9.5px] leading-[15px] text-[#668577]">
+                Produk dikirim otomatis setelah pembayaran berhasil.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <footer className="border-t border-[#F0F2F1] px-4 py-5 text-center">
+          <p className="text-[9px] text-[#A0AAA6]">
+            © {new Date().getFullYear()} Ruang Kerja
+          </p>
+        </footer>
+      </div>
 
       <style jsx global>{`
         .checkout-enter {
-          animation: checkoutEnter 0.45s
-            ease both;
+          animation: checkoutEnter 0.35s ease both;
         }
 
         @keyframes checkoutEnter {
           from {
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateY(6px);
           }
-
           to {
             opacity: 1;
             transform: translateY(0);
           }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 639px) {
+          html,
           body {
-            background: #f3f7fc;
+            background: #ffffff !important;
           }
         }
 
@@ -976,11 +736,10 @@ function CheckoutSectionTitle({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <h2 className="shrink-0 text-[12px] font-medium text-[#1F344C]">
+      <h2 className="shrink-0 text-[14px] font-bold tracking-[-0.01em] text-[#29433A]">
         {children}
       </h2>
-
-      <div className="h-px flex-1 bg-[#C8D9EA]" />
+      <div className="h-px flex-1 bg-[#E1E8E4]" />
     </div>
   );
 }
@@ -999,14 +758,17 @@ function TrustItem({
   subtitle: string;
 }) {
   return (
-    <div className="flex items-center justify-center gap-2">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E7EFF8] text-[#243F60]">
+    <div className="flex min-w-0 items-center justify-center gap-2 px-2">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E8F0ED] text-[#315F50]">
         {icon}
       </div>
-
-      <div className="text-[10px] font-medium leading-[13px] text-[#375677] sm:text-[11px]">
-        <p>{title}</p>
-        <p>{subtitle}</p>
+      <div className="min-w-0">
+        <p className="truncate text-[10px] font-bold leading-[13px] text-[#3D554D] sm:text-[11px]">
+          {title}
+        </p>
+        <p className="truncate text-[9px] leading-[12px] text-[#82908B] sm:text-[10px]">
+          {subtitle}
+        </p>
       </div>
     </div>
   );
@@ -1033,84 +795,39 @@ function PaymentOption({
 }) {
   return (
     <label
-      className={`
-        flex
-        min-h-[55px]
-        cursor-pointer
-        items-center
-        justify-between
-        gap-3
-        rounded-[3px]
-        border
-        px-2.5
-        py-2
-        transition-all
-
-        ${
-          selected
-            ? "border-[#5B8FE2] bg-[#F7FAFF] shadow-[0_0_0_1px_rgba(91,143,226,.08)]"
-            : "border-[#C9D9EA] bg-white hover:border-[#9DB9D8]"
-        }
-      `}
+      className={`flex min-h-[68px] cursor-pointer items-center gap-3 rounded-2xl border p-3 transition-all ${
+        selected
+          ? "border-[#3E725F] bg-[#F4FAF7] shadow-[0_0_0_3px_rgba(62,114,95,0.08)]"
+          : "border-[#DFE6E2] bg-white hover:border-[#B9C8C1]"
+      }`}
     >
-      <div className="flex min-w-0 items-center gap-2.5">
-        {/* RADIO */}
-        <span
-          className={`
-            flex
-            h-[16px]
-            w-[16px]
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            border-2
+      <span
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+          selected ? "border-[#2F6D57]" : "border-[#CBD5D1]"
+        }`}
+      >
+        {selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2F6D57]" />}
+      </span>
 
-            ${
-              selected
-                ? "border-[#3F61D5]"
-                : "border-[#C4D4EA]"
-            }
-          `}
-        >
-          {selected && (
-            <span className="h-[6px] w-[6px] rounded-full bg-[#3F61D5]" />
-          )}
-        </span>
+      <input type="radio" className="sr-only" checked={selected} onChange={onSelect} />
 
-        <input
-          type="radio"
-          className="sr-only"
-          checked={selected}
-          onChange={onSelect}
-        />
+      <div className="flex h-10 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E5EAE7] bg-white shadow-sm">
+        {logo}
+      </div>
 
-        {/* LOGO */}
-        <div className="flex h-[24px] w-[34px] shrink-0 items-center justify-center overflow-hidden rounded-[2px] border border-[#D7E1EC] bg-white">
-          {logo}
-        </div>
-
-        <div className="min-w-0">
-          <p className="truncate text-[10.5px] font-medium text-[#2D4C70] sm:text-[11px]">
-            {title}
-          </p>
-
-          <p className="mt-[1px] text-[8.5px] text-[#6E89A6]">
-            {subtitle}
-          </p>
-        </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[12px] font-bold leading-4 text-[#30483F] sm:text-[13px]">
+          {title}
+        </p>
+        <p className="mt-0.5 text-[10px] leading-4 text-[#87948F]">
+          {subtitle}
+        </p>
       </div>
 
       {showGateway && (
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-[#E9F1FC] px-2 py-1">
-          <span className="flex items-end gap-[1px]">
-            <span className="h-2 w-[1px] rounded bg-[#4B7FDF]" />
-            <span className="h-3 w-[1px] rounded bg-[#4B7FDF]" />
-            <span className="h-2.5 w-[1px] rounded bg-[#4B7FDF]" />
-          </span>
-
-          <span className="text-[8px] font-medium text-[#5174BC]">
-            Midtrans
+        <div className="shrink-0 rounded-lg bg-[#FFF1E8] px-2 py-1.5">
+          <span className="text-[9px] font-extrabold tracking-[0.04em] text-[#E66C2B]">
+            DOKU
           </span>
         </div>
       )}
@@ -1134,7 +851,7 @@ function PaymentLogo({
   if (channel === "qris") {
     return (
       <span
-        className={`text-[7px] font-black tracking-[-0.04em] ${className}`}
+        className={`text-[9px] font-black tracking-[-0.04em] ${className}`}
       >
         QRIS
       </span>
@@ -1144,7 +861,7 @@ function PaymentLogo({
   if (channel === "mandiri_va") {
     return (
       <span
-        className={`text-[6px] font-bold ${className}`}
+        className={`text-[8px] font-bold ${className}`}
       >
         mandiri
       </span>
@@ -1153,10 +870,33 @@ function PaymentLogo({
 
   return (
     <span
-      className={`text-[7px] font-black ${className}`}
+      className={`text-[9px] font-black ${className}`}
     >
       {label}
     </span>
+  );
+}
+
+
+function SummaryRow({
+  label,
+  sublabel,
+  value,
+}: {
+  label: string;
+  sublabel?: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <p className="text-[11px] font-medium leading-4 text-[#4F625B]">{label}</p>
+        {sublabel && (
+          <p className="mt-0.5 text-[9px] leading-4 text-[#929D99]">{sublabel}</p>
+        )}
+      </div>
+      <span className="shrink-0 text-[11px] font-semibold text-[#2D443C]">{value}</span>
+    </div>
   );
 }
 
@@ -1166,38 +906,29 @@ function PaymentLogo({
 
 function CheckoutSkeleton() {
   return (
-    <main className="min-h-screen bg-[#F3F7FC] px-2 py-3">
-      <div className="mx-auto w-full max-w-[570px] rounded-[17px] border border-[#C9D9EA] bg-white p-4">
-        <div className="flex justify-center gap-8">
-          <div className="skeleton h-8 w-28 rounded-lg bg-[#EDF2F7]" />
-          <div className="skeleton h-8 w-28 rounded-lg bg-[#EDF2F7]" />
+    <main className="min-h-screen bg-white sm:bg-[#F4F7F5] sm:px-4 sm:py-6">
+      <div className="mx-auto w-full bg-white p-4 sm:max-w-[600px] sm:rounded-[24px] sm:border sm:border-[#E2E8E5] sm:p-6">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="skeleton h-10 rounded-xl bg-[#EEF2F0]" />
+          <div className="skeleton h-10 rounded-xl bg-[#EEF2F0]" />
         </div>
-
-        <div className="skeleton mt-4 aspect-[1.1/1] w-full rounded bg-[#EDF2F7]" />
-
-        <div className="mt-6 space-y-3">
-          <div className="skeleton h-4 w-28 rounded bg-[#EDF2F7]" />
-          <div className="skeleton h-11 w-full rounded bg-[#EDF2F7]" />
-          <div className="skeleton h-11 w-full rounded bg-[#EDF2F7]" />
-          <div className="skeleton h-11 w-full rounded bg-[#EDF2F7]" />
+        <div className="skeleton mt-5 aspect-[4/3] w-full rounded-2xl bg-[#EEF2F0] sm:aspect-video" />
+        <div className="skeleton mt-5 h-6 w-2/3 rounded bg-[#EEF2F0]" />
+        <div className="skeleton mt-3 h-4 w-full rounded bg-[#EEF2F0]" />
+        <div className="mt-7 space-y-3">
+          <div className="skeleton h-12 w-full rounded-xl bg-[#EEF2F0]" />
+          <div className="skeleton h-12 w-full rounded-xl bg-[#EEF2F0]" />
+          <div className="skeleton h-16 w-full rounded-2xl bg-[#EEF2F0]" />
         </div>
       </div>
 
       <style jsx global>{`
         .skeleton {
-          animation: skeletonLoading 1.4s
-            ease-in-out infinite;
+          animation: skeletonLoading 1.4s ease-in-out infinite;
         }
-
         @keyframes skeletonLoading {
-          0%,
-          100% {
-            opacity: 0.55;
-          }
-
-          50% {
-            opacity: 1;
-          }
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 1; }
         }
       `}</style>
     </main>
