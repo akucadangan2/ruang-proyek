@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { formatRupiah, formatDateTime } from "@/lib/utils";
 import { IconReceipt, IconExternalLink } from "@/components/ui/icons";
 import type { Order, OrderStatus } from "@/types/order";
-import { useSearchParams } from "next/navigation";
-
 
 const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
   { key: "all", label: "Semua" },
@@ -42,9 +41,10 @@ const STATUS_LABEL: Record<string, string> = {
   refund: "Refund",
 };
 
-export default function OrdersPage() {
+function OrdersContent() {
   const searchParams = useSearchParams();
   const productIdFilter = searchParams.get("product_id");
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -62,7 +62,7 @@ export default function OrdersPage() {
     const { data } = await res.json();
     setOrders(data ?? []);
     setLoading(false);
-  }, [status, search]);
+  }, [status, search, productIdFilter]);
 
   useEffect(() => {
     const t = setTimeout(fetchOrders, 300);
@@ -182,5 +182,13 @@ export default function OrdersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={<p className="p-6 text-[13px] text-ink-soft">Memuat...</p>}>
+      <OrdersContent />
+    </Suspense>
   );
 }
