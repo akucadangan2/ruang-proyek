@@ -5,6 +5,7 @@ import { RevenueCard } from "@/components/dashboard/revenue-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { OrderStatusGrid } from "@/components/dashboard/order-status-grid";
 import { IconCalendar, IconChevronDown } from "@/components/ui/icons";
+import { DateRangePicker } from "@/components/dashboard/date-range-picker";
 
 interface DashboardSummary {
   gross_revenue: number;
@@ -44,22 +45,7 @@ export default function DashboardPage() {
       <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Dashboard</h1>
 
       <div className="flex gap-3">
-        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-          <IconCalendar className="w-4 h-4 text-gray-400" />
-          <input
-            type="date"
-            value={range.from}
-            onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
-            className="text-[13px] outline-none"
-          />
-          <span className="text-gray-300">-</span>
-          <input
-            type="date"
-            value={range.to}
-            onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
-            className="text-[13px] outline-none"
-          />
-        </div>
+        <DateRangePicker value={range} onChange={setRange} />
 
         <div className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 bg-white">
           <select
