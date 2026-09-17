@@ -17,7 +17,8 @@ interface PixelEventLog {
 
 export function PixelEventLog({ orderId }: { orderId: string }) {
   const [logs, setLogs] = useState<PixelEventLog[]>([]);
-  const [showHistory, setShowHistory] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [expandedPayload, setExpandedPayload] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,37 +33,43 @@ export function PixelEventLog({ orderId }: { orderId: string }) {
   const rest = logs.slice(1);
 
   return (
-    <div className="border border-line rounded-lg bg-white p-4">
-      <p className="font-semibold text-[13px] text-ink mb-3">
-        {latest.event_name} Event {latest.status === "success" ? "Triggered" : "Gagal"}
-      </p>
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-center justify-between">
+        <p className="font-semibold text-[15px] text-gray-900">
+          {latest.event_name} Event {latest.status === "success" ? "Triggered" : "Gagal"}
+        </p>
+        <button onClick={() => setCollapsed(!collapsed)} className="text-gray-400 hover:text-gray-600">
+          {collapsed ? <IconChevronDown className="w-4 h-4" /> : <IconChevronUp className="w-4 h-4" />}
+        </button>
+      </div>
 
-      <EventRow log={latest} expanded={expandedPayload === latest.id} onTogglePayload={() =>
-        setExpandedPayload(expandedPayload === latest.id ? null : latest.id)
-      } />
+      {!collapsed && (
+        <div className="mt-4 space-y-3">
+          <EventRow
+            log={latest}
+            expanded={expandedPayload === latest.id}
+            onTogglePayload={() => setExpandedPayload(expandedPayload === latest.id ? null : latest.id)}
+          />
 
-      {rest.length > 0 && (
-        <>
-          {showHistory && (
-            <div className="mt-2 space-y-2">
-              {rest.map((log) => (
-                <EventRow
-                  key={log.id}
-                  log={log}
-                  expanded={expandedPayload === log.id}
-                  onTogglePayload={() => setExpandedPayload(expandedPayload === log.id ? null : log.id)}
-                />
-              ))}
-            </div>
+          {showHistory &&
+            rest.map((log) => (
+              <EventRow
+                key={log.id}
+                log={log}
+                expanded={expandedPayload === log.id}
+                onTogglePayload={() => setExpandedPayload(expandedPayload === log.id ? null : log.id)}
+              />
+            ))}
+
+          {rest.length > 0 && (
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="block w-full text-center text-[13px] text-blue-600 font-medium pt-1"
+            >
+              {showHistory ? "Hide" : "Show"} Purchase Event History
+            </button>
           )}
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="flex items-center gap-1 text-[12px] text-accent font-medium mt-3"
-          >
-            {showHistory ? "Sembunyikan" : "Tampilkan"} Riwayat Purchase Event
-            {showHistory ? <IconChevronUp className="w-3 h-3" /> : <IconChevronDown className="w-3 h-3" />}
-          </button>
-        </>
+        </div>
       )}
     </div>
   );
@@ -78,28 +85,30 @@ function EventRow({
   onTogglePayload: () => void;
 }) {
   return (
-    <div className="bg-paper border border-line rounded-md p-3">
+    <div>
       <div className="flex items-start gap-2 mb-2">
         <IconCheckCircle
-          className={`w-4 h-4 mt-0.5 shrink-0 ${log.status === "success" ? "text-positive" : "text-negative"}`}
+          className={`w-4 h-4 mt-0.5 shrink-0 ${log.status === "success" ? "text-green-600" : "text-red-500"}`}
         />
-        <p className="text-[12px] text-ink">
+        <p className="text-[13px] text-gray-700">
           Pengiriman event {log.event_name.toLowerCase()} ke{" "}
-          <span className="font-medium">
+          <span className="font-semibold text-gray-900">
             {log.platform === "facebook" ? "Meta CAPI" : log.platform}
           </span>{" "}
           {log.status === "success" ? "telah dikonfirmasi." : "gagal dikirim."}
         </p>
       </div>
 
-      <div className="bg-white border border-line rounded-md p-2.5 text-[11px] text-ink-soft">
-        <p>Pixel ID: {log.pixels?.pixel_name ?? "-"}</p>
-        <p className="mt-0.5">At: {formatDate(log.sent_at)}</p>
-        <button onClick={onTogglePayload} className="text-accent font-medium mt-1">
-          {expanded ? "Sembunyikan Payload" : "See Payload"}
+      <div className="bg-gray-50 rounded-lg p-3 text-[13px] ml-6">
+        <p className="text-gray-700">
+          Pixel ID: <span className="font-semibold text-gray-900">{log.pixels?.pixel_name ?? "-"}</span>
+        </p>
+        <p className="text-gray-500 mt-0.5">At: {formatDate(log.sent_at)}</p>
+        <button onClick={onTogglePayload} className="text-blue-600 font-medium mt-1">
+          See Payload
         </button>
         {expanded && (
-          <pre className="mt-2 bg-paper border border-line rounded p-2 text-[10px] overflow-x-auto font-mono">
+          <pre className="mt-2 bg-white border border-gray-200 rounded p-2 text-[11px] overflow-x-auto font-mono">
             {JSON.stringify(log.payload, null, 2)}
           </pre>
         )}
