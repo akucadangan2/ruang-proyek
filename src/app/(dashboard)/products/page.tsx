@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { formatRupiah } from "@/lib/utils";
-import { IconPackage, IconArrowUpDown, IconCopy, IconTrash } from "@/components/ui/icons";
+import { IconPackage, IconArrowUpDown, IconCopy, IconTrash, IconShare } from "@/components/ui/icons";
 import type { Product } from "@/types/product";
 
 interface ProductStats {
@@ -39,6 +39,7 @@ export default function ProductsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -118,6 +119,13 @@ export default function ProductsPage() {
   async function duplicateProduct(id: string) {
     await fetch(`/api/products/${id}/duplicate`, { method: "POST" });
     fetchProducts();
+  }
+
+  function shareProduct(slug: string, id: string) {
+    const url = `${window.location.origin}/${slug}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
   }
 
   return (
@@ -216,7 +224,14 @@ export default function ProductsPage() {
                           <Link href={`/products/${product.id}`} className="font-medium text-ink hover:text-accent">
                             {product.name}
                           </Link>
-                          <div className="flex items-center gap-3 mt-1 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-3 mt-1.5 text-[11px]">
+                            <button
+                              onClick={() => shareProduct(product.slug!, product.id)}
+                              className="text-accent flex items-center gap-1 font-medium"
+                            >
+                              <IconShare className="w-3.5 h-3.5" />
+                              {copiedId === product.id ? "Tersalin!" : "Bagikan"}
+                            </button>
                             <Link href={`/products/${product.id}/checkout-builder`} className="text-accent">
                               Checkout
                             </Link>
