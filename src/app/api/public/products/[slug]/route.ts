@@ -11,7 +11,7 @@ export async function GET(
   const { data: product, error: productError } = await supabase
     .from("products")
     .select(
-      "*, product_images(*), order_bumps!product_id(*, bump_product:bump_product_id(id, name, normal_price, discount_price)), order_form_fields(*)"
+      "*, product_images(*), order_bumps!product_id(*, bump_product:bump_product_id(id, name, normal_price, discount_price, description, product_images(url, sort_order))), order_form_fields(*)"
     )
     .eq("slug", slug)
     .eq("is_active", true)
