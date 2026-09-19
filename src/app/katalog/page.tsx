@@ -36,7 +36,7 @@ export default function KatalogPage() {
         setLoading(true);
         setError(false);
 
-        const response = await fetch("/api/public/products");
+        const response = await fetch("/api/public/products", { cache: "no-store" });
 
         if (!response.ok) {
           throw new Error("Gagal memuat produk");
